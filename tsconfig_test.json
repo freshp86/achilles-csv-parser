@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "lib": [
+      "DOM",
+      "ES2017",
+      "DOM.Iterable",
+      "ES2016.Array.Include"
+    ],
+    "allowJs": true,
+    "checkJs": false,
+    "outDir": "dist/commonjs/",
+    "rootDirs": [
+      "src",
+      "tests"
+    ],
+    "noEmitHelpers": true,
+    "noEmitOnError": true,
+
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "strictBindCallApply": false,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictNullChecks": true
+  },
+  "include": [
+    "src/**/*",
+    "tests/**/*"
+  ]
+}
