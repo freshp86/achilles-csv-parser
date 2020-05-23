@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Achilles CSV to JSON converter</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+  </head>
+  <body>
+    <style>
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        font-family: Ubuntu, sans-serif;
+        margin: 0;
+      }
+    </style>
+
+    <template id="acsv-demo-app-template">
+      <style>
+        :host {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          height: 100%;
+
+          --google-grey-900-white-4-percent: #292a2d;
+          --google-grey-900: #202124;
+        }
+
+        .grid-bg {
+          --small-grid: 20px;
+          --big-grid: 100px;
+          --color-one: rgba(255 , 255, 255, 0.55);
+          --color-two: rgba(255 , 255, 255, 0.15);
+
+          background-color: var(--google-grey-900);
+          background-image:
+              linear-gradient(var(--color-one) 2px, transparent 2px),
+              linear-gradient(90deg, var(--color-one) 2px, transparent 2px),
+              linear-gradient(var(--color-two) 1px, transparent 1px),
+              linear-gradient(90deg, var(--color-two) 1px, transparent 1px);
+          background-size:
+              var(--big-grid) var(--big-grid),
+              var(--big-grid) var(--big-grid),
+              var(--small-grid) var(--small-grid),
+              var(--small-grid) var(--small-grid);
+          background-position:-2px -2px, -2px -2px, -1px -1px, -1px -1px;
+        }
+
+        :host,
+        * {
+          box-sizing: border-box;
+        }
+
+        #mainContent {
+          display: flex;
+          flex: 1;
+          padding: 1rem;
+          width: 100%;
+        }
+
+        #buttons {
+          display: flex;
+        }
+
+        @media (orientation: portrait) {
+          #mainContent {
+            align-items: center;
+            flex-direction: column;
+          }
+
+          #buttons {
+            margin: 0.5rem 0;
+          }
+
+          button:not(#convert) {
+            margin-inline-start: 0.5rem;
+          }
+        }
+
+        @media (orientation: landscape) {
+          #mainContent {
+            align-items: initial;
+          }
+
+          #buttons {
+            margin: 0 0.5rem;
+            flex-direction: column;
+            justify-content: center;
+          }
+
+          button:not(#convert) {
+            margin-block-start: 0.5rem;
+          }
+        }
+
+        textarea {
+          flex: 1;
+          width: 100%;
+
+          background-color: rgba(0.0,0,0, 0.95);
+          border: none;
+          color: white;
+          resize: none;
+          padding: 1rem;
+        }
+
+        button {
+          cursor: pointer;
+          font-family: inherit;
+          padding: 0.5rem;
+        }
+
+        #topBar {
+          padding: 1rem;
+          color: whitesmoke;
+          border-bottom: 1px solid rgba(255,255,255, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        #topBar,
+        #disclaimer {
+          text-align: center;
+          width: 100%;
+          background-color: var(--google-grey-900-white-4-percent);
+        }
+
+        img {
+          border-radius: 0.3rem;
+          height: 48px;
+          margin-inline-end: 1rem;
+          opacity: 0.5;
+        }
+
+        #title  {
+          font-size: 1.5rem;
+          font-weight: bold;
+          letter-spacing: 5px;
+          padding-bottom: 0.5rem;
+        }
+
+        #disclaimer {
+          border-top: 1px solid rgba(255,255,255, 0.5);
+          color: white;
+          font-size: 0.9rem;
+          padding: 0.5rem;
+        }
+
+        a {
+          color: #4fdeff;
+          text-decoration: none;
+        }
+      </style>
+      <div id="topBar">
+        <img src="favicon.png">
+        <div>
+          <div id="title">Achilles CSV to JSON converter</div>
+          <div>powered by <a href="https://github.com/freshp86/achilles-csv-parser">achilles-csv-parser</a></div>
+        </div>
+      </div>
+      <div id="mainContent" class="grid-bg">
+        <textarea id="input" placeholder="Enter CSV string here or click 'Import from file...'"></textarea>
+        <div id="buttons">
+          <button id="convert">Convert to JSON</button>
+          <acsv-file-select>
+            <button>Import from file...</button>
+          </acsv-file-select>
+          <button id="export">Save to file...</button>
+          <button id="copy">Copy to clipboard</button>
+        </div>
+        <textarea id="output" placeholder="JSON output will appear here..."></textarea>
+      </div>
+      <div id="disclaimer">
+        Disclaimer: No data is logged, or even transmitted over the network.
+        Conversion is performed on your local machine only. We value your privacy,
+        enjoy!
+      </div>
+    </template>
+
+    <template id="acsv-file-select-template">
+      <style>
+        input[type=file] {
+          display: none;
+        }
+      </style>
+      <slot></slot>
+      <input id="file" type="file" />
+    </template>
+
+    <acsv-demo-app></acsv-demo-app>
+    <script type="module" src="demo_app.js"></script>
+  </body>
+</html>
