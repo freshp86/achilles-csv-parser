@@ -11,6 +11,12 @@
         height: 100%;
       }
 
+      @media (-webkit-min-device-pixel-ratio: 2) {
+        html {
+          font-size: 2vmax;
+        }
+      }
+
       body {
         font-family: Ubuntu, sans-serif;
         margin: 0;
@@ -101,16 +107,42 @@
           width: 100%;
 
           background-color: rgba(0.0,0,0, 0.95);
-          border: none;
+          border: 1px solid transparent;
           color: white;
           resize: none;
           padding: 1rem;
         }
 
         button {
+          background-color: black;
+          border: 1px solid transparent;
+          border-radius: 0.3rem;
+          color: white;
           cursor: pointer;
           font-family: inherit;
           padding: 0.5rem;
+          -webkit-appearance: none;
+        }
+
+        button[disabled] {
+          pointer-events: none;
+          color: rgba(255, 255, 255, 0.2);
+        }
+
+        button:active {
+          color: chartreuse;
+        }
+
+        textarea:focus,
+        button:focus,
+        button:hover {
+          outline: none;
+          border-color: chartreuse;
+        }
+
+        button,
+        textarea {
+          font-size: inherit;
         }
 
         #topBar {
@@ -172,7 +204,7 @@
           <button id="export">Save to file...</button>
           <button id="copy">Copy to clipboard</button>
         </div>
-        <textarea id="output" placeholder="JSON output will appear here..."></textarea>
+        <textarea id="output" readonly placeholder="JSON output will appear here..."></textarea>
       </div>
       <div id="disclaimer">
         Disclaimer: No data is logged, or even transmitted over the network.
