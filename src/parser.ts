@@ -14,22 +14,60 @@
  * limitations under the License.
  */
 
-function csvToArray(string: string): Array<Array<string>> {
-  const rows: Array<Array<string>> = [];
+interface AnyObject {
+  [key: string]: any;
+}
+
+export function parseString(string: string): Array<AnyObject> {
+  const rows: Array<AnyObject> = [];
+
+  const keys: Array<string> = [];
+  let keysParsed = false;
+
+  // Number of values encountered for current row. Used to index the |keys|
+  // array.
+  let gatheredValues = 0;
+  let row: AnyObject = {};
 
   let lastDelimiter = -1;
-  let inQuotes = false;
-
   let i = 0;
-  let row: Array<string> = [];
+  let inQuotes = false;
+  let escapedDoubleQuotes = false;
 
   function gatherValue(): void {
     const offset = string[i - 1] === '"' ? 1 : 0;
-    row.push(string.substring(lastDelimiter + 1 + offset, i - offset));
+    let value = string.substring(lastDelimiter + 1 + offset, i - offset);
+    if (escapedDoubleQuotes) {
+      // Only attempt to remove escaped double quotes, if they were actually
+      // found, since this is quite costly.
+      value = value.replace(/""/g, '"');
+    }
+
+    if (!keysParsed) {
+      keys.push(value);
+    } else {
+      // TODO: assert(gatheredValues < keys.length);
+      row[keys[gatheredValues]] = value;
+      gatheredValues++;
+    }
+
+    escapedDoubleQuotes = false;
     lastDelimiter = i;
   }
 
-  while (i < string.length) {
+  function gatherRow(): void {
+    gatherValue();
+    if (!keysParsed) {
+      keysParsed = true;
+      return;
+    }
+
+    rows.push(row);
+    row = {};
+    gatheredValues = 0;
+  }
+
+  while (i <= string.length) {
     const current = string[i];
 
     if (!inQuotes) {
@@ -40,23 +78,17 @@ function csvToArray(string: string): Array<Array<string>> {
         inQuotes = true;
       } else if (current === '\r') {
         // assert next is \n
-        // End of row detected, gather value and start new row.
-        gatherValue();
-        rows.push(row);
-        row = [];
+        // End of row detected, store row and continue.
+        gatherRow();
         // Go past the \n.
         i++;
         lastDelimiter = i;
       } else if (current === '\n') {
-        // End of row detected, gather value and start new row.
-        gatherValue();
-        rows.push(row);
-        row = [];
-      } else if (i === string.length - 1) {
+        // End of row detected, store row and continue.
+        gatherRow();
+      } else if (i === string.length && string[i - 1] !== '\n') {
         // End of file reached, last line does not have \n.
-        i++;
-        gatherValue();
-        rows.push(row);
+        gatherRow();
       }
       i++;
       continue;
@@ -70,46 +102,16 @@ function csvToArray(string: string): Array<Array<string>> {
 
     const next = string[i + 1];
     if (next === '"') {
-      // Two adjacent double quotes, skip over.
-      // TODO: Need to remove the additional double quote from the end result.
+      // Two adjacent (aka escaped) double quotes found. Skipping over and
+      // dealing with them in |gatherValue|.
       i += 2;
+      escapedDoubleQuotes = true;
     } else {
       // Closing double quote detected.
       inQuotes = false;
-      if (i < string.length - 1) {
-        i++;
-      } else {
-        // End of file reached, last line does not have \n.
-        i++;
-        gatherValue();
-        rows.push(row);
-      }
+      i++;
     }
   }
 
   return rows;
-}
-
-interface AnyObject {
-  [key: string]: any;
-}
-
-export function parseString(string: string): Array<AnyObject> {
-  const result: Array<AnyObject> = [];
-
-  const rows = csvToArray(string);
-  if (rows.length === 0) {
-    return result;
-  }
-
-  const keys = rows[0];
-  for (let i = 1; i < rows.length; i++) {
-    const obj: AnyObject = {};
-    for (let j = 0; j < keys.length; j++) {
-      obj[keys[j]] = rows[i][j];
-    }
-    result.push(obj);
-  }
-
-  return result;
 }

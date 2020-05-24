@@ -24,5 +24,7 @@ suite('parser', function(){
   [
     'header_no_rows',
     'header_with_rows',
+    'ends_with_double_quote',
+    'ends_with_new_line',
   ].forEach(name => test(name, runTestCase.bind(null, name)));
 });
