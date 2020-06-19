@@ -18,9 +18,9 @@
     "parser"
   ],
   "files": [
-    "dist/commonjs/parser.debug.js",
+    "dist/commonjs/parser.js",
     "dist/commonjs/parser.min.js",
-    "dist/esm/parser.debug.js",
+    "dist/esm/parser.js",
     "dist/esm/parser.min.js",
     "dist/src/parser.ts"
   ],

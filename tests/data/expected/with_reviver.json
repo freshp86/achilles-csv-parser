@@ -1,0 +1,58 @@
+[
+  {
+    "bar": "",
+    "baz": ""
+  },
+  {
+    "bar": "",
+    "baz": ""
+  },
+  {
+    "bar": 2,
+    "baz": ""
+  },
+  {
+    "bar": "",
+    "baz": 3
+  },
+  {
+    "bar": 2,
+    "baz": 3
+  },
+  {
+    "bar": 2,
+    "baz": 3
+  },
+  {
+    "bar": "world",
+    "baz": "csv"
+  },
+  {
+    "bar": "world",
+    "baz": "csv"
+  },
+  {
+    "bar": "  world",
+    "baz": "  csv  "
+  },
+  {
+    "bar": "  world",
+    "baz": "  csv  "
+  },
+  {
+    "bar": 2,
+    "baz": 3
+  },
+  {
+    "bar": ",",
+    "baz": 3
+  },
+  {
+    "bar": 2,
+    "baz": 3
+  },
+  {
+    "bar": "Ελλάδα",
+    "baz": "μας"
+  }
+]

@@ -92,14 +92,8 @@ gulp.task(Task.TERSER, function() {
       path.join(options.outDir, 'parser.js'), {encoding: 'utf8'});
   const isModule = options.type === 'es6';
 
-  // Generate debug file.
-  let result = terser.minify(
-      code, {compress: false, mangle: false, module: isModule});
-  fs.writeFileSync(
-      path.join(options.outDir, 'parser.debug.js'),
-      result.code, {encoding: 'utf8'});
   // Generate min file.
-  result = terser.minify(code, {compress: {}, mangle: true, module: isModule});
+  const result = terser.minify(code, {compress: {}, mangle: true, module: isModule});
   fs.writeFileSync(
       path.join(options.outDir, 'parser.min.js'),
       result.code, {encoding: 'utf8'});

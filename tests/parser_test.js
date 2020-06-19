@@ -11,12 +11,12 @@ suite('parser', function(){
     assert.strictEqual(JSON.stringify([]), JSON.stringify(parseString('')));
   })
 
-  function runTestCase(name) {
+  function runTestCase(inputName, outputName, parserFn) {
     const csvString = readFileSync(
-        path.join(TEST_DATA_DIR, `${name}.csv`)).toString();
-    const actual = JSON.stringify(parseString(csvString), null, 2);
+        path.join(TEST_DATA_DIR, `${inputName}.csv`)).toString();
+    const actual = JSON.stringify(parserFn(csvString), null, 2);
     const expected = readFileSync(
-        path.join(TEST_DATA_DIR, 'expected', `${name}.json`)).toString();
+        path.join(TEST_DATA_DIR, 'expected', `${outputName || inputName}.json`)).toString();
     assert.strictEqual(actual, expected);
   }
 
@@ -26,5 +26,25 @@ suite('parser', function(){
     'header_with_rows',
     'ends_with_double_quote',
     'ends_with_new_line',
-  ].forEach(name => test(name, runTestCase.bind(null, name)));
+  ].forEach(name => test(name, () => runTestCase(name, null, parseString)));
+
+  test('reviver', function() {
+    // Example reviver function that
+    // 1) omits all fields in the "foo" column, and
+    // 2) converts all number-looking fields to numbers
+    function reviver(key, value) {
+      if (key === 'foo') {
+        return undefined;
+      }
+
+      const number = Number.parseInt(value, 10);
+      if (!Number.isNaN(number)) {
+        return number;
+      }
+
+      return value;
+    }
+
+    runTestCase('header_with_rows', 'with_reviver', string => parseString(string, reviver));
+  });
 });

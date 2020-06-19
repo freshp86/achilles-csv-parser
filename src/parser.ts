@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-interface AnyObject {
-  [key: string]: any;
-}
+interface AnyObject { [key: string]: any; }
+type Reviver = (k: string, v: string) => any;
 
-export function parseString(string: string): Array<AnyObject> {
+export function parseString(string: string, reviver?: Reviver): Array<AnyObject> {
   const rows: Array<AnyObject> = [];
 
   const keys: Array<string> = [];
@@ -47,7 +46,16 @@ export function parseString(string: string): Array<AnyObject> {
       keys.push(value);
     } else {
       // TODO: assert(gatheredValues < keys.length);
-      row[keys[gatheredValues]] = value;
+
+      if (!reviver) {
+        row[keys[gatheredValues]] = value;
+      } else {
+        const revived = reviver(keys[gatheredValues], value);
+        if (revived !== undefined) {
+          row[keys[gatheredValues]] = revived;
+        }
+      }
+
       gatheredValues++;
     }
 
