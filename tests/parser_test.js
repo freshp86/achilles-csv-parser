@@ -2,13 +2,13 @@ import * as assert from 'assert';
 import * as path from 'path';
 import {readFileSync} from 'fs';
 
-import {parseString} from '../src/parser.js';
+import {parse} from '../src/parser.js';
 
 const TEST_DATA_DIR = path.join(__dirname, '../../../tests/data/');
 
 suite('parser', function(){
   test('empty_string', function() {
-    assert.strictEqual(JSON.stringify([]), JSON.stringify(parseString('')));
+    assert.strictEqual(JSON.stringify([]), JSON.stringify(parse('')));
   })
 
   function runTestCase(inputName, outputName, parserFn) {
@@ -26,7 +26,7 @@ suite('parser', function(){
     'header_with_rows',
     'ends_with_double_quote',
     'ends_with_new_line',
-  ].forEach(name => test(name, () => runTestCase(name, null, parseString)));
+  ].forEach(name => test(name, () => runTestCase(name, null, parse)));
 
   test('reviver', function() {
     // Example reviver function that
@@ -45,6 +45,6 @@ suite('parser', function(){
       return value;
     }
 
-    runTestCase('header_with_rows', 'with_reviver', string => parseString(string, reviver));
+    runTestCase('header_with_rows', 'with_reviver', string => parse(string, reviver));
   });
 });

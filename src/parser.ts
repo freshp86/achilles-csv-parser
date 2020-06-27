@@ -17,7 +17,7 @@
 interface AnyObject { [key: string]: any; }
 type Reviver = (k: string, v: string) => any;
 
-export function parseString(string: string, reviver?: Reviver): Array<AnyObject> {
+export function parse(string: string, reviver?: Reviver): Array<AnyObject> {
   const rows: Array<AnyObject> = [];
 
   const keys: Array<string> = [];
