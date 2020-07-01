@@ -75,7 +75,7 @@ export function parse(string: string, reviver?: Reviver): Array<AnyObject> {
     gatheredValues = 0;
   }
 
-  while (i <= string.length) {
+  while (i < string.length) {
     const current = string[i];
 
     if (!inQuotes) {
@@ -94,8 +94,9 @@ export function parse(string: string, reviver?: Reviver): Array<AnyObject> {
       } else if (current === '\n') {
         // End of row detected, store row and continue.
         gatherRow();
-      } else if (i === string.length && string[i - 1] !== '\n') {
+      } else if (i === string.length - 1) {
         // End of file reached, last line does not have \n.
+        i++;
         gatherRow();
       }
       i++;
@@ -118,6 +119,11 @@ export function parse(string: string, reviver?: Reviver): Array<AnyObject> {
       // Closing double quote detected.
       inQuotes = false;
       i++;
+
+      // End of file reached, last line does not have \n.
+      if (i === string.length) {
+        gatherRow();
+      }
     }
   }
 
