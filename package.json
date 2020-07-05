@@ -1,8 +1,7 @@
 {
   "name": "achilles-csv-parser",
-  "version": "0.0.1",
-  "description": "A minimal JavaScript CSV parser for Node and Browser, with no external dependencies.",
-  "private": true,
+  "version": "1.0.0",
+  "description": "A minimal JavaScript CSV parser for NodeJS and the Browser, with no external dependencies.",
   "author": "freshp86",
   "license": "Apache-2.0",
   "repository": {
@@ -14,6 +13,7 @@
     "csv",
     "csvparser",
     "csvtojson",
+    "javascript",
     "json",
     "parser"
   ],
