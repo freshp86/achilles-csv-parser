@@ -4,7 +4,7 @@ import {readFileSync} from 'fs';
 
 import {parse} from '../src/parser.js';
 
-const TEST_DATA_DIR = path.join(__dirname, '../../../tests/data/');
+const TEST_DATA_DIR = new URL('../../../tests/data/', import.meta.url).pathname;
 
 suite('parser', function(){
   test('empty_string', function() {

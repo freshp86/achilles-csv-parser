@@ -1,16 +1,15 @@
-const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
-const exec = require('child_process').exec;
+import assert from 'assert';
+import * as fs from 'fs';
+import path from 'path';
+import {spawn} from 'child_process';
 
-const gulp = require('gulp');
-const mocha = require('gulp-mocha');
-const nopt = require('nopt');
-const terser = require('terser');
+import gulp from 'gulp';
+import nopt from 'nopt';
+import terser from 'terser';
 
 // Folder names.
 const Dir = {
-  OUT: 'dist',
+  DIST: 'dist',
   SRC: 'src',
   TESTS: 'tests',
 };
@@ -26,6 +25,7 @@ const Task = {
 
 // Regular expressions for choosing files.
 const FileRegex = {
+  SRC_PARSER_TS: `./${Dir.SRC}/parser.ts`,
   TEST_JS: `./${Dir.TESTS}/**/*_test.js`,
 };
 
@@ -46,46 +46,35 @@ function getCommandLineOptions() {
   validateFlag(options.type, new Set(['commonjs', 'es6']), 'type');
 
   options.outDir =
-      path.join(Dir.OUT, options.type === 'es6' ? 'esm' : options.type);
+      path.join(Dir.DIST, options.type === 'es6' ? 'esm' : options.type);
 
   return options;
 }
 
 // Tasks
 
-gulp.task(Task.CLEAN, function() {
-  fs.rmdirSync(Dir.OUT, {recursive: true});
+export function clean() {
+  fs.rmdirSync(Dir.DIST, {recursive: true});
   return Promise.resolve();
-});
+}
 
-gulp.task(Task.TSC, function() {
+export function tsc(done) {
   const options = getCommandLineOptions();
 
-  const tscFlags = options.target === 'src' ?
-    `--outDir ${options.outDir} --module ${options.type}` :
-    `--project tsconfig_test.json`;
+  const tscFlags = [];
+  if (options.target === 'src') {
+    tscFlags.push('--outDir', options.outDir, '--module', options.type);
+  } else {
+    tscFlags.push('--project', 'tsconfig_test.json');
+  }
 
-  return new Promise((resolve, reject) => {
-    exec(`tsc ${tscFlags}`, (error, stdout, stderr) => {
-      if (error) {
-        console.error(stderr);
-        reject();
-      }
-      if (stdout) {
-        console.log(stdout);
-      }
-      resolve();
-    });
+  const tsc = spawn('tsc', tscFlags, {shell: true, stdio: 'inherit'});
+  tsc.on('close', function(code) {
+    code === 0 ? done() : done(new Error(`tsc failed with ${code}`));
   });
-});
+}
 
-gulp.task(Task.TEST, function() {
-  return gulp.src(
-      path.join(Dir.OUT, 'commonjs', FileRegex.TEST_JS), {read: false}).
-      pipe(mocha({ui: 'tdd', reporter: 'spec'}));
-});
-
-gulp.task(Task.TERSER, function() {
+export function terserTask() {
   const options = getCommandLineOptions();
 
   const code = fs.readFileSync(
@@ -99,18 +88,46 @@ gulp.task(Task.TERSER, function() {
       result.code, {encoding: 'utf8'});
 
   return Promise.resolve();
-});
+}
 
-gulp.task(Task.RELEASE, gulp.series(Task.TSC, Task.TERSER));
+
+export function test(done) {
+  const knownOpts = { target: [String, null] };
+  const options = nopt(knownOpts);
+  options.target = options.target || 'all';
+
+  const mochaFlags = ['--ui', 'tdd'];
+  const testDir = path.join(Dir.DIST, 'commonjs', Dir.TESTS);
+  options.target === 'all' ?
+      mochaFlags.push(testDir, '--recursive') :
+      mochaFlags.push(`${testDir}/${options.target}_test.js`);
+
+  const tsc = spawn(
+      './node_modules/mocha/bin/mocha', mochaFlags,
+      {shell: true, stdio: 'inherit'});
+
+  tsc.on('close', function(code) {
+    code === 0 ? done() : done(new Error(`Mocha failed with ${code}`));
+  });
+}
+
+export function copySrc() {
+  return gulp.src([
+    FileRegex.SRC_PARSER_TS,
+  ], {base: '.'}).pipe(gulp.dest(Dir.DIST));
+}
+
+export const release = gulp.series(tsc, terserTask);
 
 // Produce distributed binaries.
-// > gulp release --type=es6
-// > gulp release --type=commonjs
+// gulp release --type=es6
+// gulp release --type=commonjs
+// gulp copySrc
 
 // Run tests.
-// > gulp tsc --target=tests
-// > gulp test
+// gulp tsc --target=tests
+// gulp test --target=parser
 
-// To test what will be published to NPM
-// > npm pack
-// > tar tvf achilles-csv-parser-0.0.1.tgz
+// Test what will be published to NPM.
+// npm pack
+// tar tvf achilles-csv-parser-1.0.0.tgz
