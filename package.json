@@ -1,7 +1,7 @@
 {
   "name": "achilles-csv-parser",
   "version": "1.0.0",
-  "description": "A minimal JavaScript CSV parser for NodeJS and the Browser, with no external dependencies.",
+  "description": "A minimal and fast CSV parser for Node.js or a web browser, without any dependencies.",
   "author": "freshp86",
   "license": "Apache-2.0",
   "repository": {
@@ -19,18 +19,20 @@
     "parser"
   ],
   "files": [
-    "dist/commonjs/parser.js",
-    "dist/commonjs/parser.min.js",
+    "dist/esm/parser.d.ts",
     "dist/esm/parser.js",
     "dist/esm/parser.min.js",
     "dist/src/parser.ts"
   ],
-  "main": "dist/commonjs/parser.min.js",
-  "bin": "./dist/commonjs/parser.min.js",
+  "main": "dist/esm/parser.min.js",
   "devDependencies": {
-    "gulp": "^4.0.2",
-    "mocha": "^8.2.1",
-    "nopt": "^4.0.1",
-    "terser": "^4.7.0"
+    "gulp": "4.0.2",
+    "mocha": "10.2.0",
+    "nopt": "7.0.0",
+    "terser": "5.16.3"
+  },
+  "overrides": {
+    "chokidar": "3.5.3",
+    "glob-parent": "6.0.2"
   }
 }

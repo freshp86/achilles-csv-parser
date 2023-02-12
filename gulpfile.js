@@ -1,26 +1,35 @@
+/**
+ * Copyright 2020 Achilles CSV Parser Project Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @license
+ */
 import assert from 'assert';
-import * as fs from 'fs';
-import path from 'path';
 import {spawn} from 'child_process';
+import {existsSync, rmSync} from 'fs';
+import {readFile, writeFile} from 'fs/promises';
+import path from 'path';
 
 import gulp from 'gulp';
 import nopt from 'nopt';
-import terser from 'terser';
+import {minify} from 'terser';
 
 // Folder names.
 const Dir = {
   DIST: 'dist',
   SRC: 'src',
   TESTS: 'tests',
-};
-
-// Gulp task names.
-const Task = {
-  CLEAN: 'clean',
-  TEST: 'test',
-  TSC: 'tsc',
-  TERSER: 'terser',
-  RELEASE: 'release',
 };
 
 // Regular expressions for choosing files.
@@ -31,22 +40,19 @@ const FileRegex = {
 
 function getCommandLineOptions() {
   const options = nopt({
-    type: [String, null],
     target: [String, null],
   });
 
   options.target = options.target || 'src';
-  options.type = options.type || 'es6';
 
   function validateFlag(value, domain, name) {
     assert.ok(domain.has(value), `Invalid value for flag ${name}: ${value}`);
   }
 
   validateFlag(options.target, new Set(['src', 'tests']), 'target');
-  validateFlag(options.type, new Set(['commonjs', 'es6']), 'type');
 
-  options.outDir =
-      path.join(Dir.DIST, options.type === 'es6' ? 'esm' : options.type);
+  // Must match what is in tsconfig.json.
+  options.outDir = path.join(Dir.DIST, 'esm');
 
   return options;
 }
@@ -54,7 +60,10 @@ function getCommandLineOptions() {
 // Tasks
 
 export function clean() {
-  fs.rmdirSync(Dir.DIST, {recursive: true});
+  if (existsSync(Dir.DIST)) {
+    rmSync(Dir.DIST, {recursive: true, force: true});
+  }
+
   return Promise.resolve();
 }
 
@@ -62,9 +71,7 @@ export function tsc(done) {
   const options = getCommandLineOptions();
 
   const tscFlags = [];
-  if (options.target === 'src') {
-    tscFlags.push('--outDir', options.outDir, '--module', options.type);
-  } else {
+  if (options.target === 'tests') {
     tscFlags.push('--project', 'tsconfig_test.json');
   }
 
@@ -74,20 +81,21 @@ export function tsc(done) {
   });
 }
 
-export function terserTask() {
+export async function terserTask() {
   const options = getCommandLineOptions();
-
-  const code = fs.readFileSync(
+  const code = await readFile(
       path.join(options.outDir, 'parser.js'), {encoding: 'utf8'});
-  const isModule = options.type === 'es6';
 
   // Generate min file.
-  const result = terser.minify(code, {compress: {}, mangle: true, module: isModule});
-  fs.writeFileSync(
+  const result = await minify(code, {
+    compress: {},
+    mangle: true,
+    module: true,
+  });
+
+  return writeFile(
       path.join(options.outDir, 'parser.min.js'),
       result.code, {encoding: 'utf8'});
-
-  return Promise.resolve();
 }
 
 
@@ -97,13 +105,13 @@ export function test(done) {
   options.target = options.target || 'all';
 
   const mochaFlags = ['--ui', 'tdd'];
-  const testDir = path.join(Dir.DIST, 'commonjs', Dir.TESTS);
+  const testDir = path.join(Dir.DIST, Dir.TESTS);
   options.target === 'all' ?
       mochaFlags.push(testDir, '--recursive') :
       mochaFlags.push(`${testDir}/${options.target}_test.js`);
 
   const tsc = spawn(
-      './node_modules/mocha/bin/mocha', mochaFlags,
+      './node_modules/mocha/bin/mocha.js', mochaFlags,
       {shell: true, stdio: 'inherit'});
 
   tsc.on('close', function(code) {
@@ -117,17 +125,15 @@ export function copySrc() {
   ], {base: '.'}).pipe(gulp.dest(Dir.DIST));
 }
 
-export const release = gulp.series(tsc, terserTask);
+export const release = gulp.parallel(copySrc, gulp.series(tsc, terserTask));
 
-// Produce distributed binaries.
-// gulp release --type=es6
-// gulp release --type=commonjs
-// gulp copySrc
+// Produce distributed files.
+// gulp release
 
-// Run tests.
+// Build and run tests
 // gulp tsc --target=tests
 // gulp test --target=parser
 
-// Test what will be published to NPM.
+// See what will be published to NPM.
 // npm pack
 // tar tvf achilles-csv-parser-1.0.0.tgz

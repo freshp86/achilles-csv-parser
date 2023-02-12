@@ -1,33 +1,25 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2022",
     "module": "ES6",
-    "lib": [
-      "DOM",
-      "ES2017",
-      "DOM.Iterable",
-      "ES2016.Array.Include"
-    ],
-    "moduleResolution": "classic",
-    "outDir": "gen/",
-    "rootDirs": [
-      "src",
-      "node_modules/"
-    ],
+
+    "outDir": "dist/esm",
+    "rootDir": "src",
+
     "noEmitHelpers": true,
     "noEmitOnError": true,
+    "declaration": true,
+    "composite": true,
 
-    "strict": true,
-    "strictPropertyInitialization": false,
-    "strictBindCallApply": false,
-    "noImplicitAny": true,
+    "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "strictNullChecks": true
+    "strict": true,
+
+    "typeRoots": []
   },
   "include": [
-    "src/**/*"
+    "src/**/*.ts"
   ]
 }

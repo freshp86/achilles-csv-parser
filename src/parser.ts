@@ -12,15 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * @license
  */
 
-interface AnyObject { [key: string]: any; }
+interface AnyObject {
+  [key: string]: any;
+}
 type Reviver = (k: string, v: string) => any;
 
-export function parse(string: string, reviver?: Reviver): Array<AnyObject> {
-  const rows: Array<AnyObject> = [];
+export function parse(string: string, reviver?: Reviver): AnyObject[] {
+  const rows: AnyObject[] = [];
 
-  const keys: Array<string> = [];
+  const keys: string[] = [];
   let keysParsed = false;
 
   // Number of values encountered for current row. Used to index the |keys|
