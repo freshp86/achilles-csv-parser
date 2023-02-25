@@ -60,6 +60,11 @@
     "baz": "3"
   },
   {
+    "foo": "hello; \"world\"",
+    "bar": ";",
+    "baz": "3"
+  },
+  {
     "foo": "hello\n\"world\"",
     "bar": "2",
     "baz": "3"

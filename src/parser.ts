@@ -19,9 +19,26 @@
 interface AnyObject {
   [key: string]: any;
 }
-type Reviver = (k: string, v: string) => any;
 
-export function parse(string: string, reviver?: Reviver): AnyObject[] {
+export type Reviver = (k: string, v: string) => any;
+
+export interface ParseOptions {
+  separator: ',' | ';';
+}
+
+function validateOptions(options: ParseOptions) {
+  // Only allow a fixed list of separators.
+  return [',', ';'].includes(options.separator);
+}
+
+export function parse(
+    string: string, reviver: Reviver|null = null, options: ParseOptions = {
+      separator: ',',
+    }): AnyObject[] {
+  if (!validateOptions(options)) {
+    throw new Error('AssertionError: Invalid |options|');
+  }
+
   const rows: AnyObject[] = [];
 
   const keys: string[] = [];
@@ -83,7 +100,7 @@ export function parse(string: string, reviver?: Reviver): AnyObject[] {
     const current = string[i];
 
     if (!inQuotes) {
-      if (current === ',') {
+      if (current === options.separator) {
         // End of value detected.
         gatherValue();
       } else if (current === '"') {

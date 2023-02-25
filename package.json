@@ -1,6 +1,6 @@
 {
   "name": "achilles-csv-parser",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A minimal and fast CSV parser for Node.js or a web browser, without any dependencies.",
   "author": "freshp86",
   "license": "Apache-2.0",

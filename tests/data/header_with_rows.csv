@@ -11,6 +11,7 @@ hello  ,  world,  csv
 "hello  ","  world","  csv  "
 "hello ""world""",2,3
 "hello, ""world""",",",3
+"hello; ""world""",";",3
 "hello
 ""world""",2,3
 καλημέρα,Ελλάδα,μας
